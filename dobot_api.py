@@ -445,7 +445,7 @@ class DobotApiDashboard(DobotApi):
             0: right multiplication, indicating that the coordinate system specified by "index" deflects the value specified by "table" along itself.
         table    string     user coordinate system offset (format: {x, y, z, rx, ry, rz}).
         """
-        string = "SetUser({:d},{:d},{:s})".format(
+        string = "CalcUser({:d},{:d},{:s})".format(
             index, matrix_direction, table)
         return self.sendRecvMsg(string)
 
