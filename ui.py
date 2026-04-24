@@ -188,7 +188,7 @@ class RobotUI(object):
         self.label_robot_mode = self.set_label(
             self.frame_feed, "", rely=0.1, x=95)
 
-        # 点动及获取坐标
+
         self.label_feed_dict = {}
         self.set_feed(LABEL_JOINT, 9, 52, 74, 117)
         self.set_feed(LABEL_COORD, 165, 209, 231, 272)
@@ -236,7 +236,7 @@ class RobotUI(object):
         return alarm_dict
 
     def read_file(self, path):
-        # 读json文件耗时大，选择维护两个变量alarm_controller_list alarm_servo_list
+
         # self.read_file("files/alarm_controller.json")
         with open(path, "r", encoding="utf8") as fp:
             json_data = json.load(fp)
@@ -299,7 +299,6 @@ class RobotUI(object):
 
     def connect_port(self):
         if self.global_state["connect"]:
-            print("断开成功")
             self.client_dash.close()
             self.client_feed.close()
             self.client_dash = None
@@ -310,7 +309,6 @@ class RobotUI(object):
             self.button_connect["text"] = "Connect"
         else:
             try:
-                print("连接成功")
                 self.client_dash = DobotApiDashboard(
                     self.entry_ip.get(), int(self.entry_dash.get()), self.text_log)
                 self.client_feed = DobotApiFeedBack(
@@ -363,10 +361,8 @@ class RobotUI(object):
 
     def confirm_do(self):
         if self.combo_status.get() == "On":
-            print("高电平")
             self.client_dash.DO(int(self.entry_index.get()), 1)
         else:
-            print("低电平")
             self.client_dash.DO(int(self.entry_index.get()), 0)
 
     def set_feed(self, text_list, x1, x2, x3, x4):
@@ -422,7 +418,7 @@ class RobotUI(object):
             if not self.global_state["connect"]:
                 break
 
-            self.client_feed.socket_dobot.setblocking(True)  # 设置为阻塞模式
+            self.client_feed.socket_dobot.setblocking(True)
             data = bytes()
             temp = self.client_feed.socket_dobot.recv(144000)
             if len(temp) > 1440:
@@ -456,18 +452,18 @@ class RobotUI(object):
 
 
     def display_error_info(self):
-        # Try to use GetError interface first / 优先尝试使用GetError接口
+
         try:
             error_info = self.client_dash.GetError("en")  # Use English for UI display
             if error_info and "errMsg" in error_info and error_info["errMsg"]:
-                # Use new GetError interface / 使用新的GetError接口
+
                 for error in error_info["errMsg"]:
                     self.form_error_new(error)
                 return
         except Exception as e:
             print(f"GetError interface failed, using fallback method: {e}")
         
-        # Fallback to original method / 回退到原来的方法
+        # Fallback to original method 
         try:
             error_list = self.client_dash.GetErrorID().split("{")[1].split("}")[0]
             error_list = json.loads(error_list)
@@ -485,7 +481,6 @@ class RobotUI(object):
             print(f"Both error retrieval methods failed: {e}")
 
     def form_error_new(self, error_data):
-        """Handle error data from GetError interface / 处理GetError接口返回的错误数据"""
         try:
             error_info = f"Time Stamp:{error_data.get('date', 'N/A')} {error_data.get('time', 'N/A')}\n"
             error_info += f"ID:{error_data.get('id', 'N/A')}\n"

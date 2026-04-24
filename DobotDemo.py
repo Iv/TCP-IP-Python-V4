@@ -1,4 +1,4 @@
-from dobot_api import DobotApiFeedBack,DobotApiDashboard
+from dobot_api import DobotApiFeedBack, DobotApiDashboard
 import threading
 from time import sleep
 import re
@@ -14,56 +14,56 @@ class DobotDemo:
         
         class item:
             def __init__(self):
-                self.robotMode = -1     #
+                self.robotMode = -1     # Robot Mode
                 self.robotCurrentCommandID = 0
                 self.MessageSize = -1
                 self.DigitalInputs =-1
                 self.DigitalOutputs = -1
                 self.robotCurrentCommandID = -1
-                # 自定义添加所需反馈数据
+                # Add desired feedback data here
 
-        self.feedData = item()  # 定义结构对象
+        self.feedData = item()  # Define structure object
 
     def start(self):
-        # 启动机器人并使能
+        # Start the robot and enable it
         self.dashboard = DobotApiDashboard(self.ip, self.dashboardPort)
         self.feedFour = DobotApiFeedBack(self.ip, self.feedPortFour)
         if self.parseResultId(self.dashboard.EnableRobot())[0] != 0:
-            print("使能失败: 检查29999端口是否被占用")
+            print("Enable failed: Check if port 29999 is occupied")
             return
-        print("使能成功")
+        print("Enable successful")
 
-        # 启动状态反馈线程
+        # Start status feedback thread
         feed_thread = threading.Thread(
-            target=self.GetFeed)  # 机器状态反馈线程
+            target=self.GetFeed)  # Robot status feedback thread
         feed_thread.daemon = True
         feed_thread.start()
 
-        # 定义两个目标点
+        # Define two target points
         point_a = [146.3759,-283.4321,332.3956,177.7879,-1.8540,147.5821]
         point_b = [146.3759,-283.4321,432.3956,177.7879,-1.8540,147.5821]
 
-        # 走点循环
+        # Movement loop
         while True:
-            print("DI:", self.feedData.DigitalInputs,"2DI:", bin(self.feedData.DigitalInputs),"--16:",hex(self.feedData.DigitalInputs))
-            print("DO:", self.feedData.DigitalOutputs,"2DO:" ,bin(self.feedData.DigitalOutputs),"--16:",hex(self.feedData.DigitalOutputs))
-            print("robomode",self.feedData.robotMode)
+            print("DI:", self.feedData.DigitalInputs, "2DI:", bin(self.feedData.DigitalInputs), "--16:", hex(self.feedData.DigitalInputs))
+            print("DO:", self.feedData.DigitalOutputs, "2DO:", bin(self.feedData.DigitalOutputs), "--16:", hex(self.feedData.DigitalOutputs))
+            print("robot mode:", self.feedData.robotMode)
             sleep(2)
 
     def GetFeed(self):
-        # 获取机器人状态
+        # Get robot status
         while True:
             feedInfo = self.feedFour.feedBackData()
             with self.__globalLockValue:
                 if feedInfo is not None:   
                     if hex((feedInfo['TestValue'][0])) == '0x123456789abcdef':
-                        # 基础字段
+                        # Basic fields
                         self.feedData.MessageSize = feedInfo['len'][0]
                         self.feedData.robotMode = feedInfo['RobotMode'][0]
                         self.feedData.DigitalInputs = feedInfo['DigitalInputs'][0]
                         self.feedData.DigitalOutputs = feedInfo['DigitalOutputs'][0]
                         self.feedData.robotCurrentCommandID = feedInfo['CurrentCommandId'][0]
-                        # 自定义添加所需反馈数据
+                        # Add desired feedback data here
                         '''
                         self.feedData.DigitalOutputs = int(feedInfo['DigitalOutputs'][0])
                         self.feedData.RobotMode = int(feedInfo['RobotMode'][0])
@@ -71,23 +71,23 @@ class DobotDemo:
                         '''
 
     def RunPoint(self, point_list):
-        # 走点指令
+        # Movement command
         recvmovemess = self.dashboard.MovJ(*point_list, 0)
         print("MovJ:", recvmovemess)
         print(self.parseResultId(recvmovemess))
         currentCommandID = self.parseResultId(recvmovemess)[1]
-        print("指令 ID:", currentCommandID)
+        print("Command ID:", currentCommandID)
         #sleep(0.02)
-        while True:  #完成判断循环
+        while True:  # Completion judgment loop
 
             print(self.feedData.robotMode)
             if self.feedData.robotMode == 5 and self.feedData.robotCurrentCommandID == currentCommandID:
-                print("运动结束")
+                print("Movement finished")
                 break
             sleep(0.1)
 
     def parseResultId(self, valueRecv):
-        # 解析返回值，确保机器人在 TCP 控制模式
+        # Parse the return value to ensure the robot is in TCP control mode
         if "Not Tcp" in valueRecv:
             print("Control Mode Is Not Tcp")
             return [1]

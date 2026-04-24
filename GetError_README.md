@@ -1,46 +1,46 @@
-# GetError接口使用说明
+# GetError Interface Usage Guide
 
-## 概述
+## Overview
 
-`GetError`接口是在 `dobot_api.py`中新增的功能，用于通过HTTP请求获取机器人的报警信息。该接口支持多种语言，并返回JSON格式的报警数据。
+The `GetError` interface is a newly added feature in `dobot_api.py` for retrieving robot alarm information through HTTP requests. This interface supports multiple languages and returns alarm data in JSON format.
 
-## 功能特性
+## Features
 
-- ✅ 支持10种语言的报警信息显示
-- ✅ 通过HTTP GET请求获取报警数据
-- ✅ 自动设置语言偏好
-- ✅ 返回结构化的JSON数据
-- ✅ 完善的错误处理机制
+- ✅ Supports alarm information display in 10 languages
+- ✅ Retrieves alarm data via HTTP GET requests
+- ✅ Automatically sets language preferences
+- ✅ Returns structured JSON data
+- ✅ Comprehensive error handling mechanism
 
-## 支持的语言
+## Supported Languages
 
-| 语言代码    | 语言名称              |
-| ----------- | --------------------- |
-| `zh_cn`   | 简体中文              |
-| `zh_hant` | 繁体中文              |
-| `en`      | English (英语)        |
-| `ja`      | 日本語 (日语)         |
-| `de`      | Deutsch (德语)        |
-| `vi`      | Tiếng Việt (越南语) |
-| `es`      | Español (西班牙语)   |
-| `fr`      | Français (法语)      |
-| `ko`      | 한국어 (韩语)         |
-| `ru`      | Русский (俄语) |
+| Language Code | Language Name       |
+| ------------- | ------------------- |
+| `zh_cn`     | Simplified Chinese  |
+| `zh_hant`   | Traditional Chinese |
+| `en`        | English             |
+| `ja`        | Japanese            |
+| `de`        | German              |
+| `vi`        | Vietnamese          |
+| `es`        | Spanish             |
+| `fr`        | French              |
+| `ko`        | Korean              |
+| `ru`        | Russian             |
 
-## 接口说明
+## Interface Description
 
-### 方法签名
+### Method Signature
 
 ```python
 def GetError(self, language="zh_cn"):
     """
-    获取机器人报警信息
+    Get robot alarm information
   
     Args:
-        language (str): 语言设置，默认为"zh_cn"
+        language (str): Language setting, default is "zh_cn"
   
     Returns:
-        dict: 报警信息字典，格式如下：
+        dict: Alarm information dictionary with the following format:
         {
             "errMsg": [
                 {
@@ -57,97 +57,97 @@ def GetError(self, language="zh_cn"):
     """
 ```
 
-### 使用的HTTP接口
+### HTTP Interfaces Used
 
-1. **设置语言接口**
+1. **Language Setting Interface**
 
    - **URL**: `http://ip:22000/interface/language`
-   - **方法**: POST
-   - **数据格式**: `{"type": "语言代码"}`
-2. **获取报警信息接口**
+   - **Method**: POST
+   - **Data Format**: `{"type": "language_code"}`
+2. **Get Alarm Information Interface**
 
    - **URL**: `http://ip:22000/protocol/getAlarm`
-   - **方法**: GET
-   - **返回格式**: JSON
+   - **Method**: GET
+   - **Return Format**: JSON
 
-## 基本使用示例
+## Basic Usage Examples
 
-### 1. 简单使用
+### 1. Simple Usage
 
 ```python
 from dobot_api import DobotApiDashboard
 
-# 创建连接
+# Create connection
 dashboard = DobotApiDashboard("192.168.5.1", 29999)
 
-# 获取中文报警信息
+# Get Chinese alarm information
 error_info = dashboard.GetError("zh_cn")
 
-# 检查是否有报警
+# Check for alarms
 if error_info and "errMsg" in error_info:
     errors = error_info["errMsg"]
     if errors:
-        print(f"发现 {len(errors)} 个报警")
+        print(f"Found {len(errors)} alarm(s)")
         for error in errors:
-            print(f"报警ID: {error['id']}")
-            print(f"描述: {error['description']}")
-            print(f"解决方案: {error['solution']}")
+            print(f"Alarm ID: {error['id']}")
+            print(f"Description: {error['description']}")
+            print(f"Solution: {error['solution']}")
     else:
-        print("无报警信息")
+        print("No alarm information")
 
-# 关闭连接
+# Close connection
 dashboard.close()
 ```
 
-### 2. 多语言支持
+### 2. Multi-language Support
 
 ```python
-# 获取英文报警信息
+# Get English alarm information
 error_info_en = dashboard.GetError("en")
 
-# 获取日文报警信息
+# Get Japanese alarm information
 error_info_ja = dashboard.GetError("ja")
 
-# 获取德文报警信息
+# Get German alarm information
 error_info_de = dashboard.GetError("de")
 ```
 
-### 3. 错误处理
+### 3. Error Handling
 
 ```python
 try:
     error_info = dashboard.GetError("zh_cn")
     if error_info is None:
-        print("获取报警信息失败")
+        print("Failed to get alarm information")
     elif "errMsg" not in error_info:
-        print("返回数据格式异常")
+        print("Abnormal return data format")
     else:
-        # 处理正常数据
+        # Handle normal data
         pass
 except Exception as e:
-    print(f"发生异常: {e}")
+    print(f"Exception occurred: {e}")
 ```
 
-## 完整示例程序
+## Complete Example Programs
 
-项目中提供了两个示例程序：
+The project provides two example programs:
 
-1. **`test_get_error.py`** - 基本功能测试
-2. **`get_error_example.py`** - 完整的使用示例，包含监控类
+1. **`test_get_error.py`** - Basic functionality test
+2. **`get_error_example.py`** - Complete usage example with monitoring class
 
-### 运行测试程序
+### Running Test Programs
 
 ```bash
-# 基本测试
+# Basic test
 python test_get_error.py
 
-# 完整示例
+# Complete example
 python get_error_example.py
 ```
 
-## 返回数据格式
+## Return Data Format
 
-### 成功响应
+### Successful Response
 
 ```json
 {
@@ -155,9 +155,9 @@ python get_error_example.py
         {
             "id": 1537,
             "level": 1,
-            "description": "急停按钮被拍下",
-            "solution": "恢复急停按钮并清错。若仍然告警，则确认急停按钮是否损坏，可更换急停按钮",
-            "mode": "安全控制器错误",
+            "description": "E-Stop button pressed",
+            "solution": "Release the E-Stop button and clear the error. If the error persists, check if the button is faulty and replace it if needed.",
+            "mode": "Safety controller error",
             "date": "2025-01-09",
             "time": "10:30:15"
         }
@@ -165,7 +165,7 @@ python get_error_example.py
 }
 ```
 
-### 无报警时
+### No Alarms
 
 ```json
 {
@@ -173,51 +173,51 @@ python get_error_example.py
 }
 ```
 
-### 错误情况
+### Error Cases
 
-- 网络连接失败：返回 `None`
-- HTTP请求失败：返回 `None`
-- JSON解析失败：返回 `None`
+- Network connection failure: Returns `None`
+- HTTP request failure: Returns `None`
+- JSON parsing failure: Returns `None`
 
-## 注意事项
+## Important Notes
 
-1. **网络连接**：确保机器人网络连接正常，端口22000可访问
-2. **IP地址**：使用建立TCP连接时的相同IP地址
-3. **语言设置**：每次调用都会先设置语言，然后获取报警信息
-4. **错误处理**：建议在实际使用中添加适当的错误处理逻辑
-5. **连接管理**：使用完毕后记得关闭连接
+1. **Network Connection**: Ensure the robot network connection is normal and port 22000 is accessible
+2. **IP Address**: Use the same IP address as when establishing TCP connection
+3. **Language Setting**: Each call will first set the language, then retrieve alarm information
+4. **Error Handling**: It's recommended to add appropriate error handling logic in actual usage
+5. **Connection Management**: Remember to close the connection after use
 
-## 故障排除
+## Troubleshooting
 
-### 常见问题
+### Common Issues
 
-1. **连接超时**
+1. **Connection Timeout**
 
-   - 检查机器人IP地址是否正确
-   - 确认网络连接是否正常
-   - 验证端口22000是否开放
-2. **返回None**
+   - Check if the robot IP address is correct
+   - Confirm network connection is normal
+   - Verify port 22000 is open
+2. **Returns None**
 
-   - 检查HTTP请求是否成功
-   - 确认机器人固件版本是否支持该接口
-   - 查看网络防火墙设置
-3. **语言设置无效**
+   - Check if HTTP request is successful
+   - Confirm robot firmware version supports this interface
+   - Check network firewall settings
+3. **Language Setting Invalid**
 
-   - 确认语言代码拼写正确
-   - 检查机器人是否支持该语言
-   - 尝试使用默认语言"zh_cn"
+   - Confirm language code spelling is correct
+   - Check if robot supports the language
+   - Try using default language "zh_cn"
 
-### 调试建议
+### Debugging Suggestions
 
-1. 先使用 `test_get_error.py`进行基本功能测试
-2. 检查机器人Web界面是否可以正常访问
-3. 使用浏览器直接访问HTTP接口进行验证
-4. 查看控制台输出的错误信息
+1. First use `test_get_error.py` for basic functionality testing
+2. Check if robot web interface is accessible normally
+3. Use browser to directly access HTTP interface for verification
+4. Check console output for error messages
 
-## 更新日志
+## Update Log
 
 - **v1.0** (2025-09-05)
-  - 初始版本发布
-  - 支持10种语言
-  - 完整的错误处理机制
-  - 提供示例程序和文档
+  - Initial version release
+  - Support for 10 languages
+  - Complete error handling mechanism
+  - Provided example programs and documentation
